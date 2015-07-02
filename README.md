@@ -4,7 +4,7 @@ The stupid way to hook Scala code up to databases.
 Antonym of Slick ;-)
 
 ## Rant
-I'm fed up with tossing out ORM tools because they don't work. Frankly, the only usable thing ever to come out of Spring was JDBC Templates, which is some nice and helpful sugar for talking to JDBC. 
+I'm fed up with tossing out ORM tools because they don't work. Frankly, the only usable thing ever to come out of Spring was JDBC Templates, which is some nice and helpful sugar for talking to JDBC. This library aims to do the same for Scala.
 
 Once, I worked at a project where we had an open source ORM, in the best OO language on the planet, with the author part of the project. His credentials? He worked on one of the most successful commercial ORMs on the planet before.
 
