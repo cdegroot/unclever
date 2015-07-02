@@ -1,5 +1,7 @@
 # unclever
-The stupid way to talk to databases
+The stupid way to hook Scala code up to databases.
+
+Antonym of Slick ;-)
 
 ## Rant
 I'm fed up with tossing out ORM tools because they don't work. Frankly, the only usable thing ever to come out of Spring was JDBC Templates, which is some nice and helpful sugar for talking to JDBC. 
