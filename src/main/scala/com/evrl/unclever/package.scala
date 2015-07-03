@@ -63,9 +63,10 @@ package object unclever {
   implicit def optDbValueToInt(ov: Option[DbValue]): Option[Int] = ???
 
   /**
-   * Implicitly convert a string to a Query object.
-   * @param s
-   * @return
+   * Support sql"..." syntax to create queries. Looks nice in IntelliJ because
+   * it triggers syntax highlighting inside the string.
    */
-  implicit def asQuery(s: String): Query = ???
+  implicit class QueryHelper(private val sc: StringContext) extends AnyVal {
+    def sql(args: Any*): Query = ???
+  }
 }
