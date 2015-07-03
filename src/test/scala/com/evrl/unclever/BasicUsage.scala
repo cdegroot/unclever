@@ -9,13 +9,13 @@ class BasicUsage extends FlatSpec with ShouldMatchers with MockFactory {
 
   val connection = mock[Connection]
 
-  "unclever" should "make querying nice and simple" in {
+  "unclever" should "make querying nice and simple" ignore {
     val query = "select id from emp where emp = ?"
 
     val result: Option[Int] = query.withParams("1").in(connection).map(_.col(1)).headOption
   }
 
-  it should "be more scala-like than JDBC Template" in {
+  it should "be more scala-like than JDBC Template" ignore {
     // Copying from
     // http://docs.spring.io/spring/docs/current/spring-framework-reference/html/jdbc.html#jdbc-JdbcTemplate-examples-query
     //
@@ -41,11 +41,11 @@ class BasicUsage extends FlatSpec with ShouldMatchers with MockFactory {
       .in(connection).map(r => Actor(r.col(1), r.col(2)))
   }
 
-  it should "be able to execute arbitrary statements" in {
+  it should "be able to execute arbitrary statements" ignore {
     "create table emp(id int, mgr_id int, name)".executeIn(connection)
   }
 
-  it should "support error handling" in {
+  it should "support error handling" ignore {
     val result: Option[Int] = "select * from nonexistent_table"
       .in(connection).onError(e => throw new Exception(e)).map(_.col(1)).headOption
 
