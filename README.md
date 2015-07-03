@@ -1,4 +1,6 @@
 # unclever
+
+[![Join the chat at https://gitter.im/cdegroot/unclever](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/cdegroot/unclever?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 The stupid way to hook Scala code up to databases.
 
 Antonym of Slick ;-)
