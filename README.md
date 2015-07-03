@@ -1,5 +1,7 @@
-[![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/cdegroot/unclever)
 [![Build Status](https://travis-ci.org/cdegroot/unclever.svg)](https://travis-ci.org/cdegroot/unclever)
+ [![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/cdegroot/unclever)
+
+Unclever is currently under design, check [the design spec](https://github.com/cdegroot/unclever/blob/master/src/test/scala/com/evrl/unclever/BasicUsage.scala) and join [the chat](https://gitter.im/cdegroot/unclever) to participate.
 
 # unclever
 The stupid way to hook Scala code up to databases.
