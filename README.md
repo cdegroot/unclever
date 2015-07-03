@@ -1,3 +1,6 @@
+[![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/cdegroot/unclever)
+[![Build Status](https://travis-ci.org/cdegroot/unclever.svg)](https://travis-ci.org/cdegroot/unclever)
+
 # unclever
 The stupid way to hook Scala code up to databases.
 
