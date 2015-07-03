@@ -1,9 +1,12 @@
 package com.evrl.unclever
 
 import java.sql.Connection
+import javax.sql.DataSource
 
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.{FlatSpec, ShouldMatchers}
+
+import scala.util.{Success, Failure}
 
 class BasicUsage extends FlatSpec with ShouldMatchers with MockFactory {
 
@@ -46,11 +49,27 @@ class BasicUsage extends FlatSpec with ShouldMatchers with MockFactory {
   }
 
   it should "support error handling" ignore {
-    val result: Option[Int] = sql"select * from nonexistent_table"
+    val badQuery = sql"select * from nonexistent_table"
+    val result: Option[Int] = badQuery
       .in(connection).onError(e => throw new Exception(e)).map(_.col(1)).headOption
 
     // Or, using the default handling
-    val nada: Option[_] = sql"select * from nonexistent_table".in(connection).map(_.col(1)).headOption
+    val nada: Option[_] = badQuery.in(connection).map(_.col(1)).headOption
     nada should be(None)
+
+    // Or, using try
+    val tryNada: Option[_] = badQuery.tryIn(connection).map(_.col(1)) match {
+      case Failure(e) => println("E!"); None
+      case Success(v) => Some(v)
+    }
+    tryNada should be(None)
+  }
+
+  it should "support safe operations" ignore {
+    val dataSource = mock[DataSource]
+
+    withConnectionFrom(dataSource) { c =>
+      sql"select 1".in(c).map(_.col(1)).headOption should be(Some(1))
+    }
   }
 }

@@ -1,8 +1,10 @@
 package com.evrl
 
 import java.sql.{Connection, SQLException}
+import javax.sql.DataSource
 
 import scala.language.implicitConversions
+import scala.util.Try
 
 package object unclever {
 
@@ -12,8 +14,10 @@ package object unclever {
   trait Query {
     def withParams(args: Any*): Query
     def in(conn: Connection): ConnectedQuery
+    def tryIn(conn: Connection): ConnectedQueryTry
     def executeIn(conn: Connection): Unit
   }
+
 
   /**
    * A wrapper around java.sql.ResultSet that makes it nicer for Scala
@@ -21,7 +25,6 @@ package object unclever {
    */
   trait ResultSetRow {
     def col(i: Int): DbValue
-    def col(s: String): DbValue
   }
 
   /**
@@ -44,9 +47,19 @@ package object unclever {
      * @return A (possibly empty) list of results
      */
     def map[T](m: unclever.RowMapper[T]): Seq[T]
-
-
   }
+
+  /**
+   * A query that has been assigned to a connection and will employ Try.
+   */
+  trait ConnectedQueryTry {
+    def map[T](m: unclever.RowMapper[T]): Try[Seq[T]]
+  }
+
+  /**
+   * Connection wrapping
+   */
+  def withConnectionFrom[T](ds: DataSource)(f : Connection => T): Try[T] = ???
 
   /**
    * Type that describes how to map from a ResultSet to a T
