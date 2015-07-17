@@ -72,7 +72,7 @@ package object unclever {
    * people.
    */
   trait ResultSetRow {
-    def col[A](i: Int)(implicit ev: DbValue[A]): A
+    def col[A: DbValue](i: Int): A
   }
 
   /**
