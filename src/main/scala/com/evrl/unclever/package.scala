@@ -8,16 +8,44 @@ import scala.util.Try
 
 package object unclever {
 
+  // Part one: connection/statement execution stuff
+
+  /**
+   * A database operation, returning A
+   * @tparam A the return type of the database operation
+   */
+  type DB[A] = Connection => Try[A]
+
+  /**
+   * Try the database operation in a connection
+   *
+   * @param conn
+   * @param op
+   * @tparam A
+   * @return
+   */
+  def tryIn[A](conn: Connection)(op: => DB[A]): Try[A] = ???
+
+  /**
+   * Try the database operation in a fresh connection obtained
+   * from the datasource
+   */
+  def tryWith[A](ds: DataSource)(op: => DB[A]): Try[A] = ???
+
   /**
    * A Query object. Typically created from a SQL string.
    */
   trait Query {
     def withParams(args: Any*): Query
-    def in(conn: Connection): ConnectedQuery
-    def tryIn(conn: Connection): ConnectedQueryTry
-    def executeIn(conn: Connection): Unit
+
+    def map[T](m: RowMapper[T]): DB[Seq[T]]
+    def mapOne[T](m: RowMapper[T]): DB[T]
   }
 
+  /** So we can try direct queries without mapping */
+  implicit def queryToDbOp(q: Query): DB[Any] = ???
+
+  // Part two: getting results back
 
   /**
    * A wrapper around java.sql.ResultSet that makes it nicer for Scala
@@ -33,21 +61,6 @@ package object unclever {
    */
   trait DbValue
 
-  /**
-   * A query that has been assigned to a connection.
-   */
-  trait ConnectedQuery {
-    def onError(handler: (SQLException) => Unit): ConnectedQuery = ???
-
-    /**
-     * Execute the query and map the result set using the
-     * rowmapper.
-     * @param m A function to extract a row from a java.sql.ResultSet
-     * @tparam T The type of the result
-     * @return A (possibly empty) list of results
-     */
-    def map[T](m: unclever.RowMapper[T]): Seq[T]
-  }
 
   /**
    * A query that has been assigned to a connection and will employ Try.

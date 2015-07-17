@@ -6,16 +6,18 @@ import javax.sql.DataSource
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.{FlatSpec, ShouldMatchers}
 
-import scala.util.{Success, Failure}
+import scala.util.{Try, Success, Failure}
 
 class BasicUsage extends FlatSpec with ShouldMatchers with MockFactory {
 
   val connection = mock[Connection]
 
-  "unclever" should "make querying nice and simple" ignore {
+  it should "make querying nice and simple in a functional manner" ignore {
     val query = sql"select id from emp where emp = ?"
 
-    val result: Option[Int] = query.withParams("1").in(connection).map(_.col(1)).headOption
+    val op: DB[Int] = query.withParams("1").mapOne(_.col(1))
+
+    val result: Try[Int] = tryIn(connection)(op)
   }
 
   it should "be more scala-like than JDBC Template" ignore {
@@ -40,36 +42,22 @@ class BasicUsage extends FlatSpec with ShouldMatchers with MockFactory {
     // performance testing, and saw - at least with the MySQL JDBC Driver - a significant
     // difference between fetch-by-name and fetch-by-column-index. I prefer the fast version.
 
-    val results: Seq[Actor] = sql"select first_name, last_name"
-      .in(connection).map(r => Actor(r.col(1), r.col(2)))
+    val results: Try[Seq[Actor]] = tryIn(connection) {
+      sql"select first_name, last_name".map(r => Actor(r.col(1), r.col(2)))
+    }
   }
 
   it should "be able to execute arbitrary statements" ignore {
-    sql"create table emp(id int, mgr_id int, name)".executeIn(connection)
-  }
-
-  it should "support error handling" ignore {
-    val badQuery = sql"select * from nonexistent_table"
-    val result: Option[Int] = badQuery
-      .in(connection).onError(e => throw new Exception(e)).map(_.col(1)).headOption
-
-    // Or, using the default handling
-    val nada: Option[_] = badQuery.in(connection).map(_.col(1)).headOption
-    nada should be(None)
-
-    // Or, using try
-    val tryNada: Option[_] = badQuery.tryIn(connection).map(_.col(1)) match {
-      case Failure(e) => println("E!"); None
-      case Success(v) => Some(v)
-    }
-    tryNada should be(None)
+    tryIn(connection)(sql"create table emp(id int, mgr_id int, name)")
   }
 
   it should "support safe operations" ignore {
     val dataSource = mock[DataSource]
 
-    withConnectionFrom(dataSource) { c =>
-      sql"select 1".in(c).map(_.col(1)).headOption should be(Some(1))
+    val result = tryWith(dataSource) {
+      sql"select 1".mapOne(_.col(1))
     }
+    result.isSuccess should be(true)
+    result.get should be(1)
   }
 }
