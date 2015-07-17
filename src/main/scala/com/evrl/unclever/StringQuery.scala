@@ -18,7 +18,8 @@ class StringQuery(sql: String) extends Query {
         val results = stmt.executeQuery(sql)
         try {
           Success(m(new ResultSetRow() {
-            override def col(i: Int): DbValue = DbValue(results, i)
+            override def col[A](i: Int)(implicit ev: DbValue[A]): A =
+              ev.value(results, i)
           }
           ))
         } catch {

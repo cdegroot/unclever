@@ -52,19 +52,28 @@ package object unclever {
 
   // Part two: getting results back
 
+  /** A typeclass for database values */
+  trait DbValue[A] {
+    def value(r: ResultSet, i: Int): A
+  }
+
+  /** Make Int a member of DbValue */
+  implicit object IntDbValue extends DbValue[Int] {
+    def value(r: ResultSet, i: Int): Int = r.getInt(i)
+  }
+
+  /** Make String a member of DbValue */
+  implicit object StringDbValue extends DbValue[String] {
+    def value(r: ResultSet, i: Int): String = r.getString(i)
+  }
+
   /**
    * A wrapper around java.sql.ResultSet that makes it nicer for Scala
    * people.
    */
   trait ResultSetRow {
-    def col(i: Int): DbValue
+    def col[A](i: Int)(implicit ev: DbValue[A]): A
   }
-
-  /**
-   * A value of a single column in a single row. Can be any type
-   * supported by ResultSet.
-   */
-  case class DbValue(resultSet: ResultSet, col: Int)
 
   /**
    * Type that describes how to map from a ResultSet to a T
@@ -73,12 +82,6 @@ package object unclever {
    */
   type RowMapper[T] = ResultSetRow => T
 
-  // Bunch of default mappers
-  implicit def dbValueToInt(v: DbValue): Int = v.resultSet.getInt(v.col)
-  implicit def dbValueToString(v: DbValue): String = ???
-
-  // Scala doesn't do this for you, alas.
-  implicit def optDbValueToInt(ov: Option[DbValue]): Option[Int] = ???
 
   /**
    * Support sql"..." syntax to create queries. Looks nice in IntelliJ because
