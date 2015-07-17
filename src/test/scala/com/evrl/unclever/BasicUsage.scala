@@ -6,8 +6,15 @@ import javax.sql.DataSource
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.{FlatSpec, ShouldMatchers}
 
-import scala.util.{Try, Success, Failure}
+import scala.util.Try
 
+/**
+ * The tests in this class are all ignored by design. They serve as compilable documentation
+ * on how to use the library. Compiler-driven-design: if you want to extend the library,
+ * write an ignored test, make it compile by adding unimplemented methods, and tweak until
+ * you like the code here. When done, write tests that exercise the new unimplemented
+ * methods.
+ */
 class BasicUsage extends FlatSpec with ShouldMatchers with MockFactory {
 
   val connection = mock[Connection]

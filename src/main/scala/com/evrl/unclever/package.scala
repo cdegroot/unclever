@@ -1,17 +1,22 @@
 package com.evrl
 
-import java.sql.{Connection, SQLException}
+import java.sql.{ResultSet, Connection, SQLException}
 import javax.sql.DataSource
 
 import scala.language.implicitConversions
 import scala.util.Try
 
+/**
+ * The unclever package object holds the API to unclever, calling out to
+ * implementation methods for all actual work except for the very simplest
+ * of operations.
+ */
 package object unclever {
 
   // Part one: connection/statement execution stuff
 
   /**
-   * A database operation, returning A
+   * A database operation, returning a result of type A
    * @tparam A the return type of the database operation
    */
   type DB[A] = Connection => Try[A]
@@ -24,7 +29,7 @@ package object unclever {
    * @tparam A
    * @return
    */
-  def tryIn[A](conn: Connection)(op: => DB[A]): Try[A] = ???
+  def tryIn[A](conn: Connection)(op: => DB[A]): Try[A] = op(conn)
 
   /**
    * Try the database operation in a fresh connection obtained
@@ -43,7 +48,7 @@ package object unclever {
   }
 
   /** So we can try direct queries without mapping */
-  implicit def queryToDbOp(q: Query): DB[Any] = ???
+  implicit def queryToDbOp(q: Query): DB[Unit] = ???
 
   // Part two: getting results back
 
@@ -59,20 +64,7 @@ package object unclever {
    * A value of a single column in a single row. Can be any type
    * supported by ResultSet.
    */
-  trait DbValue
-
-
-  /**
-   * A query that has been assigned to a connection and will employ Try.
-   */
-  trait ConnectedQueryTry {
-    def map[T](m: unclever.RowMapper[T]): Try[Seq[T]]
-  }
-
-  /**
-   * Connection wrapping
-   */
-  def withConnectionFrom[T](ds: DataSource)(f : Connection => T): Try[T] = ???
+  case class DbValue(resultSet: ResultSet, col: Int)
 
   /**
    * Type that describes how to map from a ResultSet to a T
@@ -82,7 +74,7 @@ package object unclever {
   type RowMapper[T] = ResultSetRow => T
 
   // Bunch of default mappers
-  implicit def dbValueToInt(v: DbValue): Int = ???
+  implicit def dbValueToInt(v: DbValue): Int = v.resultSet.getInt(v.col)
   implicit def dbValueToString(v: DbValue): String = ???
 
   // Scala doesn't do this for you, alas.
@@ -93,6 +85,6 @@ package object unclever {
    * it triggers syntax highlighting inside the string.
    */
   implicit class QueryHelper(private val sc: StringContext) extends AnyVal {
-    def sql(args: Any*): Query = ???
+    def sql(args: Any*): Query = new StringQuery(sc.parts.head)
   }
 }
