@@ -22,7 +22,8 @@ package object unclever {
   type DB[A] = Connection => Try[A]
 
   /**
-   * Try the database operation in a connection
+   * Try the database operation in a connection. Feel free to ignore this
+   * method and use op(conn) directly if you think it's more readable.
    *
    * @param conn
    * @param op
@@ -43,8 +44,24 @@ package object unclever {
   trait Query {
     def withParams(args: Any*): Query
 
+    /**
+     * Map a query to a sequence of values. This will, when run,
+     * result in a Try[Seq[T]] with not found mapped to an empty
+     * sequence
+     * @param m the rowmapper to use
+     * @tparam T the result type
+     * @return a DB operation representing the map
+     */
     def map[T](m: RowMapper[T]): DB[Seq[T]]
-    def mapOne[T](m: RowMapper[T]): DB[T]
+
+    /**
+     * Map a query to a single value. This will, when run, result
+     * in a Try[Option[T]] with not found mapped to a None.
+     * @param m the rowmapper to use
+     * @tparam T the result type
+     * @return a DB operation representing the map
+     */
+    def mapOne[T](m: RowMapper[T]): DB[Option[T]]
   }
 
   /** So we can try direct queries without mapping */

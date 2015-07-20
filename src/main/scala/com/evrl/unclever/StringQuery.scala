@@ -11,19 +11,22 @@ class StringQuery(sql: String) extends Query {
 
   override def map[T](m: RowMapper[T]): DB[Seq[T]] = ???
 
-  override def mapOne[T](m: RowMapper[T]): DB[T] = { conn =>
+  override def mapOne[T](m: RowMapper[T]): DB[Option[T]] = { conn =>
     // This BS is the reason we want to wrap JDBC interactions ;-)
     try {
       val stmt = conn.createStatement
       try {
         val results = stmt.executeQuery(sql)
         try {
-          // TODO empty result set? And then, return a Success(None) or a Failure?
-          Success(m(new ResultSetRow() {
-            override def col[A](i: Int)(implicit ev: DbValue[A]): A =
-              ev.value(results, i)
+          if (results.next()) {
+            Success(Some(m(new ResultSetRow() {
+              override def col[A](i: Int)(implicit ev: DbValue[A]): A =
+                ev.value(results, i)
+            }
+            )))
+          } else {
+            Success(None)
           }
-          ))
         } catch {
           case NonFatal(e) => Failure(e)
         } finally {

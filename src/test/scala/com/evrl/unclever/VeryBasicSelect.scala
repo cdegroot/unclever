@@ -20,14 +20,32 @@ class VeryBasicSelect extends FlatSpec with ShouldMatchers with MockFactory {
 
     (connection.createStatement _).expects().returning(statement)
     (statement.executeQuery _).expects("select 1").returning(resultset)
-    (statement.close _).expects()
+    (resultset.next _).expects().returning(true)
     (resultset.getInt (_: Int)).expects(1).returns(42)
+    (statement.close _).expects()
     (resultset.close _).expects()
 
     val result = tryIn(connection)(query)
     result.isSuccess should be(true)
-    val resultValue: Int = result.get
-    resultValue should be(42)
+    val resultValue: Option[Int] = result.get
+    resultValue should be(Some(42))
+  }
+
+  it should "map no results to a none" in {
+    val connection = mock[Connection]
+    val statement = mock[Statement]
+    val resultset = mock[ResultSet]
+
+    (connection.createStatement _).expects().returning(statement)
+    (statement.executeQuery _).expects("select 1").returning(resultset)
+    (resultset.next _).expects().returning(false)
+    (statement.close _).expects()
+    (resultset.close _).expects()
+
+    val result = tryIn(connection)(query)
+    result.isSuccess should be(true)
+    val resultValue: Option[Int] = result.get
+    resultValue should be(None)
   }
 
   it should "handle connection errors" in {
@@ -61,8 +79,9 @@ class VeryBasicSelect extends FlatSpec with ShouldMatchers with MockFactory {
 
     (connection.createStatement _).expects().returning(statement)
     (statement.executeQuery _).expects("select 1").returning(resultset)
-    (statement.close _).expects()
+    (resultset.next _).expects().returning(true)
     (resultset.getInt (_: Int)).expects(1).throws(exception)
+    (statement.close _).expects()
     (resultset.close _).expects()
 
     expectFailure(connection, exception)
