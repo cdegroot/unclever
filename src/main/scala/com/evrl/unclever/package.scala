@@ -4,7 +4,7 @@ import java.sql.{ResultSet, Connection, SQLException}
 import javax.sql.DataSource
 
 import scala.language.implicitConversions
-import scala.util.Try
+import scala.util.{Failure, Success, Try}
 
 /**
  * The unclever package object holds the API to unclever, calling out to
@@ -36,7 +36,8 @@ package object unclever {
    * Try the database operation in a fresh connection obtained
    * from the datasource
    */
-  def tryWith[A](ds: DataSource)(op: => DB[A]): Try[A] = ???
+  def tryWith[A](ds: DataSource)(op: => DB[A]): Try[A] = op(ds.getConnection)
+
 
   /**
    * A Query object. Typically created from a SQL string.
@@ -62,10 +63,29 @@ package object unclever {
      * @return a DB operation representing the map
      */
     def mapOne[T](m: RowMapper[T]): DB[Option[T]]
+
+    /**
+     * Execute a query where no results are expected (update, DDL). Returns number
+     * of rows affected.
+     */
+    def execute: DB[Int]
   }
 
-  /** So we can try direct queries without mapping */
+  /** So we can run direct queries without mapping */
   implicit def queryToDbOp(q: Query): DB[Unit] = ???
+
+  /** So we can run strings without mapping */
+  implicit def stringToDbOp(s: String) = new StringQuery(s).execute
+
+  /**
+   * Convert a sequence of insert/update/DDL queries into a combine DB[Int]. This
+   * will return either the total number of rows or the first exception when run.
+   */
+  implicit def seqStringToDbOp(strings: Seq[String]): DB[Int] = {
+    conn => strings.map(s => new StringQuery(s).execute).foldLeft(Success(0): Try[Int]) { (acc, elem) =>
+      acc.flatMap(x => elem(conn).map(y => x + y))
+    }
+  }
 
   // Part two: getting results back
 
@@ -83,6 +103,7 @@ package object unclever {
   implicit object StringDbValue extends DbValue[String] {
     def value(r: ResultSet, i: Int): String = r.getString(i)
   }
+
 
   /**
    * A wrapper around java.sql.ResultSet that makes it nicer for Scala

@@ -1,5 +1,8 @@
 package com.evrl.unclever
 
+
+import java.sql.Statement
+
 import scala.util.{Success, Failure}
 import scala.util.control.NonFatal
 
@@ -11,27 +14,28 @@ class StringQuery(sql: String) extends Query {
 
   override def map[T](m: RowMapper[T]): DB[Seq[T]] = ???
 
-  override def mapOne[T](m: RowMapper[T]): DB[Option[T]] = { conn =>
+  override def mapOne[T](m: RowMapper[T]): DB[Option[T]] = talkToDatabase { stmt =>
+    val results = stmt.executeQuery(sql)
+    try {
+      if (results.next()) {
+        Some(m(new ResultSetRow() {
+          override def col[A](i: Int)(implicit ev: DbValue[A]): A =
+            ev.value(results, i)
+        }))
+      } else {
+        None
+      }
+    }
+  }
+
+  override def execute: DB[Int] = talkToDatabase(stmt => stmt.executeUpdate(sql))
+
+  private def talkToDatabase[T](f: Statement => T): DB[T] = { conn =>
     // This BS is the reason we want to wrap JDBC interactions ;-)
     try {
       val stmt = conn.createStatement
       try {
-        val results = stmt.executeQuery(sql)
-        try {
-          if (results.next()) {
-            Success(Some(m(new ResultSetRow() {
-              override def col[A](i: Int)(implicit ev: DbValue[A]): A =
-                ev.value(results, i)
-            }
-            )))
-          } else {
-            Success(None)
-          }
-        } catch {
-          case NonFatal(e) => Failure(e)
-        } finally {
-          results.close()
-        }
+        Success(f(stmt))
       } catch {
         case NonFatal(e) => Failure(e)
       } finally {
