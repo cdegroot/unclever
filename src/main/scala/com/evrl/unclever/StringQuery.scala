@@ -16,17 +16,16 @@ class StringQuery(sql: String) extends Query {
 
   override def mapOne[T](m: RowMapper[T]): DB[Option[T]] = talkToDatabase { stmt =>
     val results = stmt.executeQuery(sql)
-    try {
-      if (results.next()) {
-        Some(m(new ResultSetRow() {
-          override def col[A](i: Int)(implicit ev: DbValue[A]): A =
-            ev.value(results, i)
-        }))
-      } else {
-        None
-      }
+    if (results.next()) {
+      Some(m(new ResultSetRow() {
+        override def col[A](i: Int)(implicit ev: DbValue[A]): A =
+          ev.value(results, i)
+      }))
+    } else {
+      None
     }
   }
+
 
   override def execute: DB[Int] = talkToDatabase(stmt => stmt.executeUpdate(sql))
 

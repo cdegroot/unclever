@@ -3,7 +3,7 @@ import sbt.Keys._
 
 object UncleverBuild extends Build {
 
-  lazy val unclever = Project(id = "unclever", base = file("."))
+  lazy val root = Project(id = "unclever", base = file("."))
     .configs(IntegrationTest)
     .settings(
       scalaVersion := "2.11.7",
