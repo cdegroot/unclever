@@ -9,7 +9,7 @@ import javax.sql.DataSource
  */
 object DatabaseSetup {
 
-  def apply: DataSource = {
+  def before: DataSource = {
     setupDatabase
     datasource
   }
