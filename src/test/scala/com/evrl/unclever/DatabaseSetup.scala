@@ -22,7 +22,6 @@ object DatabaseSetup {
     def makeDataSource: DataSource = {
       val ds = new org.h2.jdbcx.JdbcDataSource()
       ds.setUrl("jdbc:h2:mem:" + new Random().alphanumeric.take(32).mkString)
-      print(s"ds=$ds")
       ds
     }
     def setupDatabase(ds: DataSource) = {

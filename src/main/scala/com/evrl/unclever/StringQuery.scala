@@ -58,7 +58,8 @@ class StringQuery[S <: Statement](sql: String) extends Query {
     }
   }
 
-  protected def createStatement(conn: Connection): S = {
-    conn.createStatement
-  }
+  protected def createStatement(conn: Connection): S =
+    // TODO find out why this doesn't work without the asInstanceOf
+    conn.createStatement.asInstanceOf[S]
+
 }
