@@ -31,12 +31,16 @@ Fine. This is Open Source, I'm not ramming it down your throat, so please move o
 Of course. Don't sue me, however, if stuff blows up. 
 
 This is a work-in-progress. Having said that, Unclever is mostly complete, specifically patches to do the following won't be accepted:
+
 - Anything with metadata (know thy schema);
 - Anything with stored procedures (they're eee-vul);
 - Probably anything added in JDBC 2.0;
 - Pretty much anything over basic CRUD stuff. This is a minimalistic, understandable, predictable library. Not a framework.
+
 So, before submitting a pull request, ping me whether I actually want new code in. Bugfixes are always welcome, though :)
 
 ## I'm sold. How can I use it?
 
 The [Apache 2](http://www.apache.org/licenses/LICENSE-2.0) License applies. Have fun.
+
+I'm not sure when I get around publishing it somewhere for easy inclusion - it probably needs a bit more work. In the meantime, you can use sbt's dependsOn as explained in [this SO post](http://stackoverflow.com/questions/7550376/how-can-sbt-pull-dependency-artifacts-from-git).
