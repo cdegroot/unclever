@@ -37,3 +37,6 @@ This is a work-in-progress. Having said that, Unclever is mostly complete, speci
 - Pretty much anything over basic CRUD stuff. This is a minimalistic, understandable, predictable library. Not a framework.
 So, before submitting a pull request, ping me whether I actually want new code in. Bugfixes are always welcome, though :)
 
+## I'm sold. How can I use it?
+
+The [Apache 2](http://www.apache.org/licenses/LICENSE-2.0) License applies. Have fun.
