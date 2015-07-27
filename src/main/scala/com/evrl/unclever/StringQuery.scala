@@ -9,7 +9,7 @@ import scala.util.control.NonFatal
 /**
  * A Query implementation that uses strings to describe queries.
  */
-class StringQuery(sql: String) extends Query {
+class StringQuery[S <: Statement](sql: String) extends Query {
   override def withParams(params: ParamValue[_]*): Query =
     new ParameterizedStringQuery(sql, params)
 
@@ -40,7 +40,7 @@ class StringQuery(sql: String) extends Query {
     })
   }
 
-  protected def talkToDatabase[T](f: Statement => T): DB[T] = { conn =>
+  protected def talkToDatabase[T](f: S => T): DB[T] = { conn =>
     // This BS is the reason we want to wrap JDBC interactions ;-)
     try {
       val stmt = createStatement(conn)
@@ -58,7 +58,7 @@ class StringQuery(sql: String) extends Query {
     }
   }
 
-  protected def createStatement(conn: Connection): Statement = {
+  protected def createStatement(conn: Connection): S = {
     conn.createStatement
   }
 }

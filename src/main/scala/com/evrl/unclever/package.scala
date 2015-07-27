@@ -1,6 +1,6 @@
 package com.evrl
 
-import java.sql.{PreparedStatement, ResultSet, Connection, SQLException}
+import java.sql._
 import javax.sql.DataSource
 
 import scala.language.implicitConversions
@@ -86,7 +86,7 @@ package object unclever {
   implicit def queryToDbOp(q: Query): DB[Unit] = ???
 
   /** So we can run strings without mapping */
-  implicit def stringToDbOp(s: String) = new StringQuery(s).execute
+  implicit def stringToDbOp(s: String) = new StringQuery[Statement](s).execute
 
   /**
    * Convert a sequence of insert/update/DDL queries into a combine DB[Int]. This
