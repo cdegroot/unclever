@@ -27,5 +27,11 @@ And the port from MySQL to Postgres? You need to test, profile, and whatnot anyw
 ## I disagree!
 Fine. This is Open Source, I'm not ramming it down your throat, so please move on and ignore me. The code will still be there next year, when you want it :P
 
-## Code? Which code?
-Sharp! This is total vapourware until the next PagerDuty hackday :-)
+## So can I use this code to run my nuclear reactor?
+Of course. Don't sue me, however, if stuff blows up. 
+
+This is a work-in-progress. Having said that, Unclever is mostly complete, specifically patches to do the following won't be accepted:
+- Anything with metadata (know thy schema);
+- Anything with stored procedures (they're eee-vul);
+- Pretty much anything over basic CRUD stuff. This is a minimalistic, understandable, predictable library. Not a framework.
+So, before submitting a pull request, ping me whether I actually want new code in. Bugfixes are always welcome, though :)
