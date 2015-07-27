@@ -35,8 +35,6 @@ object DatabaseSetup {
     ds
   }
 
-
-
   case class Table(name: String, definition: String) {
     def drop = s"drop table if exists $name"
     def create = s"create table $name $definition"

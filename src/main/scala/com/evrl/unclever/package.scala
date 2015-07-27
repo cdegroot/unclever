@@ -4,7 +4,7 @@ import java.sql._
 import javax.sql.DataSource
 
 import scala.language.implicitConversions
-import scala.util.{Failure, Success, Try}
+import scala.util.{Success, Try}
 
 /**
  * The unclever package object holds the API to unclever, calling out to
@@ -100,38 +100,10 @@ package object unclever {
 
   // Part two: getting results back
 
-  /** A typeclass for database values */
-  trait DbValue[A] {
-    def value(r: ResultSet, i: Int): A
-  }
-
-  /** A typeclass for parameter values */
-  trait ParamValue[A] {
-    def bindIn(s: PreparedStatement, i: Int)
-  }
-
-  // Make Int a member of DbValue and ParamValue
-
-  implicit object IntDbValue extends DbValue[Int] {
-    override def value(r: ResultSet, i: Int): Int =
-      r.getInt(i)
-  }
-  implicit def int2paramValue(v: Int): ParamValue[Int] = new ParamValue[Int] {
-    override def bindIn(s: PreparedStatement, i: Int): Unit =
-      s.setInt(i, v)
-  }
-
-  // Make String a member of DbValue and ParamValue
-
-  implicit object StringDbValue extends DbValue[String] {
-    override def value(r: ResultSet, i: Int): String =
-      r.getString(i)
-  }
-  implicit def string2paramValue(v: String): ParamValue[String] = new ParamValue[String] {
-    override def bindIn(s: PreparedStatement, i: Int): Unit =
-      s.setString(i, v)
-  }
-
+  // Import two useful type classes for getting values from result sets
+  // and binding parameters
+  import DbValue._
+  import ParamValue._
 
   /**
    * A wrapper around java.sql.ResultSet that makes it nicer for Scala
