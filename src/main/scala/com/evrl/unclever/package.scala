@@ -65,6 +65,13 @@ package object unclever {
     def mapOne[T](m: RowMapper[T]): DB[Option[T]]
 
     /**
+     * In case you have a query with a single value, use this instead
+     * of mapOne. It's a bit nicer. We're here to make your life nicer,
+     * so don't thank us :-).
+     */
+    def as[T: DbValue]: DB[Option[T]] = mapOne(_.col[T](1))
+
+    /**
      * Execute a query where no results are expected (update, DDL). Returns number
      * of rows affected.
      */

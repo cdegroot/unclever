@@ -1,7 +1,7 @@
 package com.evrl.unclever
 
 
-import java.sql.Statement
+import java.sql.{ResultSet, Statement}
 
 import scala.util.{Success, Failure}
 import scala.util.control.NonFatal
@@ -12,22 +12,32 @@ import scala.util.control.NonFatal
 class StringQuery(sql: String) extends Query {
   override def withParams(args: Any*): Query = ???
 
-  override def map[T](m: RowMapper[T]): DB[Seq[T]] = ???
+  override def map[T](m: RowMapper[T]): DB[Seq[T]] = talkToDatabase { stmt =>
+    val results = stmt.executeQuery(sql)
+    var accum = new scala.collection.mutable.ArrayBuffer[T]
+    while (results.next()) {
+      accum += mapRow(m, results)
+    }
+    accum.toSeq
+  }
 
   override def mapOne[T](m: RowMapper[T]): DB[Option[T]] = talkToDatabase { stmt =>
     val results = stmt.executeQuery(sql)
     if (results.next()) {
-      Some(m(new ResultSetRow() {
-        override def col[A](i: Int)(implicit ev: DbValue[A]): A =
-          ev.value(results, i)
-      }))
+      Some(mapRow(m, results))
     } else {
       None
     }
   }
 
-
   override def execute: DB[Int] = talkToDatabase(stmt => stmt.executeUpdate(sql))
+
+  private def mapRow[T](m: RowMapper[T], results: ResultSet): T = {
+    m(new ResultSetRow() {
+      override def col[A](i: Int)(implicit ev: DbValue[A]): A =
+        ev.value(results, i)
+    })
+  }
 
   private def talkToDatabase[T](f: Statement => T): DB[T] = { conn =>
     // This BS is the reason we want to wrap JDBC interactions ;-)
