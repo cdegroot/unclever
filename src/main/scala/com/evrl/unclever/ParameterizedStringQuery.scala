@@ -38,4 +38,16 @@ class ParameterizedStringQuery(sql: String, params: Seq[ParamValue[_]])
     }
     stmt
   }
+
+  override def andGetKey[T: DbValue]: DB[T] = talkToDatabase { stmt =>
+    // TODO check whether this is H2 specific. RETURN_GENERATED_KEYS is not available in PreparedStatement.
+    stmt.executeUpdate()
+    val results = stmt.getGeneratedKeys
+    if (results.next()) {
+      mapRow(_.col[T](1), results)
+    } else {
+      throw new RuntimeException(
+        "Unexpected situation: insert succeeded but no primary key returned")
+    }
+  }
 }

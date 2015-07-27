@@ -11,7 +11,7 @@ class InsertTest extends FlatSpec with ShouldMatchers with TestDatasource {
     result.get should be(5)
   }
 
-  it should "work with parameters" ignore {
+  it should "work with parameters" in {
     val result = tryWith(ds)(
     sql"insert into emp(mgr, name) values(?, ?)"
       .withParams(1, "John Doe")
