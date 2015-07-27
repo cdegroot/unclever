@@ -12,6 +12,7 @@ trait ParamValue[A] {
 /**
  * All instances of the ParamValue type class.
  */
+// See rant in DbValue
 object ParamValue {
 
   // Kept alphabetically
