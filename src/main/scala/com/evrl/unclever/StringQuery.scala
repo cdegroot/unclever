@@ -59,7 +59,17 @@ class StringQuery[S <: Statement](sql: String) extends Query {
   }
 
   protected def createStatement(conn: Connection): S =
-    // TODO find out why this doesn't work without the asInstanceOf
+    // TODO find out how to make this work without the asInstanceOf
     conn.createStatement.asInstanceOf[S]
 
+  override def andGetKey[T: DbValue]: DB[T] = talkToDatabase { stmt =>
+    stmt.executeUpdate(sql, Statement.RETURN_GENERATED_KEYS)
+    val results = stmt.getGeneratedKeys
+    if (results.next()) {
+      mapRow(_.col[T](1), results)
+    } else {
+      throw new RuntimeException(
+        "Unexpected situation: insert succeeded but no primary key returned")
+    }
+  }
 }

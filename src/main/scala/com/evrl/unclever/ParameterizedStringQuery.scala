@@ -20,12 +20,20 @@ class ParameterizedStringQuery(sql: String, params: Seq[ParamValue[_]])
     accum.toSeq
   }
 
+  override def mapOne[T](m: RowMapper[T]): DB[Option[T]] = talkToDatabase { stmt =>
+    val results = stmt.executeQuery()
+    if (results.next()) {
+      Some(mapRow(m, results))
+    } else {
+      None
+    }
+  }
   override def execute: DB[Int] = talkToDatabase(stmt =>
     stmt.executeUpdate())
 
   override def createStatement(conn: Connection) = {
     val stmt = conn.prepareStatement(sql)
-    params.zipWithIndex.map { case (param, i) =>
+    params.zipWithIndex.foreach { case (param, i) =>
       param.bindIn(stmt, i + 1)
     }
     stmt

@@ -22,7 +22,7 @@ class BasicUsage extends FlatSpec with ShouldMatchers with MockFactory {
   it should "make querying nice and simple in a functional manner" ignore {
     val query = sql"select id from emp where emp = ?"
 
-    val op: DB[Option[Int]] = query.withParams("1").mapOne(_.col[Int](1))
+    val op: DB[Option[Int]] = query.withParams(1).mapOne(_.col[Int](1))
 
     val result: Try[Option[Int]] = tryIn(connection)(op)
   }
@@ -50,7 +50,9 @@ class BasicUsage extends FlatSpec with ShouldMatchers with MockFactory {
     // difference between fetch-by-name and fetch-by-column-index. I prefer the fast version.
 
     val results: Try[Seq[Actor]] = tryIn(connection) {
-      sql"select first_name, last_name".map(r => Actor(r.col[String](1), r.col[String](2)))
+      sql"select first_name, last_name from actors where id = ?"
+        .withParams(42)
+        .map(r => Actor(r.col[String](1), r.col[String](2)))
     }
   }
 

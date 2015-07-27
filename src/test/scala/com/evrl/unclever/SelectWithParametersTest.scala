@@ -15,4 +15,12 @@ class SelectWithParametersTest extends FlatSpec with ShouldMatchers with TestDat
     count.isSuccess should be(true)
     count.get should be(Seq(1,2))
   }
+
+  it should "handle a single value select" in {
+    val query = sql"select name from emp where id = ?".withParams(2)
+    val name = tryWith(ds)(query.as[String])
+    name.isSuccess should be(true)
+    name.get.isDefined should be(true)
+    name.get.get should be("Mr. CFO")
+  }
 }

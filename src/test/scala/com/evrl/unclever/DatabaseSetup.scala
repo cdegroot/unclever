@@ -45,7 +45,7 @@ object DatabaseSetup {
   }
 
   val tables = Seq(
-    Table("emp", "(id INT NOT NULL, mgr INT NOT NULL, name VARCHAR(255))")
+    Table("emp", "(id IDENTITY, mgr INT NOT NULL, name VARCHAR(255))")
   )
 
   def rowDatas = Seq(

@@ -80,10 +80,16 @@ package object unclever {
      * of rows affected.
      */
     def execute: DB[Int]
+
+    /**
+     * Specially for inserts, returns the primary key when executed.
+     * @return
+     */
+    def andGetKey[T: DbValue]: DB[T]
   }
 
   /** So we can run direct queries without mapping */
-  implicit def queryToDbOp(q: Query): DB[Unit] = ???
+  implicit def queryToDbOp(q: Query): DB[Int] = q.execute
 
   /** So we can run strings without mapping */
   implicit def stringToDbOp(s: String) = new StringQuery[Statement](s).execute
@@ -101,7 +107,8 @@ package object unclever {
   // Part two: getting results back
 
   // Import two useful type classes for getting values from result sets
-  // and binding parameters
+  // and binding parameters. This is purely for the callers' convenience
+  // so it's correct that they are marked as unused here.
   import DbValue._
   import ParamValue._
 
