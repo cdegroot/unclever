@@ -33,19 +33,7 @@ Of course. Don't sue me, however, if stuff blows up.
 This is a work-in-progress. Having said that, Unclever is mostly complete, specifically patches to do the following won't be accepted:
 - Anything with metadata (know thy schema);
 - Anything with stored procedures (they're eee-vul);
+- Probably anything added in JDBC 2.0;
 - Pretty much anything over basic CRUD stuff. This is a minimalistic, understandable, predictable library. Not a framework.
 So, before submitting a pull request, ping me whether I actually want new code in. Bugfixes are always welcome, though :)
 
-Having said that, current list of TODOs:
-- Complete DbValue/ParamValue (the current set is copmlete but opiniated);
-- Support for returning the primary key on an insert.
-
-About DbValue and ParamValue's "complete but opiniated" state: In my opinion (which counts here, because 
-this is my code), boolean/char/int/long should be the only types to use (I don't work in scientific computing, 
-so floats are never needed. If you need money types, don't use floats. Use a long representing the smallest
-denomination, like dollar cents. Sometimes, when you're not overdoing it, it's convenient to have a blob in 
-the database, but make it a binary blob so you control charset conversions etcetera, and bind using byte 
-arrays instead of streams because it's simpler and forces you to start scratching your head before you
-start streaming gigabyte blobs into an RDBMS where you really want some K/V storage. So these types I 
-provide, the rest I don't basically because I have an opinion and I'm lazy and given that these
-are typeclasses, it's trivial to extend them.

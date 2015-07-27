@@ -8,28 +8,21 @@ import scala.util.control.NonFatal
 class ParameterizedStringQuery(sql: String, params: Seq[ParamValue[_]])
   extends StringQuery[PreparedStatement](sql) {
 
+  /**
+   * Because it was so simple to implement, you can chain withParams calls. What
+   * you do with it and how to protect your sanity while doing it, is not my
+   * problem.
+   * @param moreParams
+   * @return
+   */
   override def withParams(moreParams: ParamValue[_]*): Query =
     new ParameterizedStringQuery(sql, params ++ moreParams)
 
-  override def map[T](m: RowMapper[T]): DB[Seq[T]] = talkToDatabase { stmt =>
-    val results = stmt.executeQuery()
-    var accum = new scala.collection.mutable.ArrayBuffer[T]
-    while (results.next()) {
-      accum += mapRow(m, results)
-    }
-    accum.toSeq
-  }
+  protected override def executeQueryInStmt(statement: PreparedStatement) =
+    statement.executeQuery()
 
-  override def mapOne[T](m: RowMapper[T]): DB[Option[T]] = talkToDatabase { stmt =>
-    val results = stmt.executeQuery()
-    if (results.next()) {
-      Some(mapRow(m, results))
-    } else {
-      None
-    }
-  }
-  override def execute: DB[Int] = talkToDatabase(stmt =>
-    stmt.executeUpdate())
+  protected override def executeUpdateInStmt(statement: PreparedStatement) =
+    statement.executeUpdate()
 
   override def createStatement(conn: Connection) = {
     val stmt = conn.prepareStatement(sql)
@@ -39,15 +32,7 @@ class ParameterizedStringQuery(sql: String, params: Seq[ParamValue[_]])
     stmt
   }
 
-  override def andGetKey[T: DbValue]: DB[T] = talkToDatabase { stmt =>
+  protected override def executeForInsertInStmt(statement: PreparedStatement) =
     // TODO check whether this is H2 specific. RETURN_GENERATED_KEYS is not available in PreparedStatement.
-    stmt.executeUpdate()
-    val results = stmt.getGeneratedKeys
-    if (results.next()) {
-      mapRow(_.col[T](1), results)
-    } else {
-      throw new RuntimeException(
-        "Unexpected situation: insert succeeded but no primary key returned")
-    }
-  }
+    statement.executeUpdate()
 }

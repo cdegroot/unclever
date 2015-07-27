@@ -20,10 +20,4 @@ class InsertTest extends FlatSpec with ShouldMatchers with TestDatasource {
     result.isSuccess should be(true)
     result.get should be(5)
   }
-
-  it should "return a sequence of primary keys on multiple inserts" ignore {
-    // TODO something like seqStringToDbOp is planned here
-  }
-
-
 }
