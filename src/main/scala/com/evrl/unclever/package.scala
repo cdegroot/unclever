@@ -1,6 +1,6 @@
 package com.evrl
 
-import java.sql.{ResultSet, Connection, SQLException}
+import java.sql.{PreparedStatement, ResultSet, Connection, SQLException}
 import javax.sql.DataSource
 
 import scala.language.implicitConversions
@@ -43,7 +43,11 @@ package object unclever {
    * A Query object. Typically created from a SQL string.
    */
   trait Query {
-    def withParams(args: Any*): Query
+    /**
+     * Add parameters to bind. Parameters must be of types for
+     * which the package has implicit conversions.
+     */
+    def withParams(params: ParamValue[_]*): Query
 
     /**
      * Map a query to a sequence of values. This will, when run,
@@ -101,14 +105,31 @@ package object unclever {
     def value(r: ResultSet, i: Int): A
   }
 
-  /** Make Int a member of DbValue */
-  implicit object IntDbValue extends DbValue[Int] {
-    def value(r: ResultSet, i: Int): Int = r.getInt(i)
+  /** A typeclass for parameter values */
+  trait ParamValue[A] {
+    def bindIn(s: PreparedStatement, i: Int)
   }
 
-  /** Make String a member of DbValue */
+  // Make Int a member of DbValue and ParamValue
+
+  implicit object IntDbValue extends DbValue[Int] {
+    override def value(r: ResultSet, i: Int): Int =
+      r.getInt(i)
+  }
+  implicit def int2paramValue(v: Int): ParamValue[Int] = new ParamValue[Int] {
+    override def bindIn(s: PreparedStatement, i: Int): Unit =
+      s.setInt(i, v)
+  }
+
+  // Make String a member of DbValue and ParamValue
+
   implicit object StringDbValue extends DbValue[String] {
-    def value(r: ResultSet, i: Int): String = r.getString(i)
+    override def value(r: ResultSet, i: Int): String =
+      r.getString(i)
+  }
+  implicit def string2paramValue(v: String): ParamValue[String] = new ParamValue[String] {
+    override def bindIn(s: PreparedStatement, i: Int): Unit =
+      s.setString(i, v)
   }
 
 

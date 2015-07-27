@@ -19,6 +19,6 @@ class SelectSingleTest extends FlatSpec with ShouldMatchers with TestDatasource 
   it should "return an error if the query is wrong" in {
     val count = tryWith(ds)(sql"select YO! BRO! I'M A SYNTAX ERROR!'".as[Int])
     count.isSuccess should be(false)
-    count.failed.get shouldBe a [org.h2.jdbc.JdbcSQLException]
+    count.failed.get shouldBe an [org.h2.jdbc.JdbcSQLException]
   }
 }

@@ -1,7 +1,7 @@
 package com.evrl.unclever
 
 
-import java.sql.{ResultSet, Statement}
+import java.sql.{Connection, ResultSet, Statement}
 
 import scala.util.{Success, Failure}
 import scala.util.control.NonFatal
@@ -10,7 +10,8 @@ import scala.util.control.NonFatal
  * A Query implementation that uses strings to describe queries.
  */
 class StringQuery(sql: String) extends Query {
-  override def withParams(args: Any*): Query = ???
+  override def withParams(params: ParamValue[_]*): Query =
+    new ParameterizedStringQuery(sql, params)
 
   override def map[T](m: RowMapper[T]): DB[Seq[T]] = talkToDatabase { stmt =>
     val results = stmt.executeQuery(sql)
@@ -32,17 +33,17 @@ class StringQuery(sql: String) extends Query {
 
   override def execute: DB[Int] = talkToDatabase(stmt => stmt.executeUpdate(sql))
 
-  private def mapRow[T](m: RowMapper[T], results: ResultSet): T = {
+  protected def mapRow[T](m: RowMapper[T], results: ResultSet): T = {
     m(new ResultSetRow() {
       override def col[A](i: Int)(implicit ev: DbValue[A]): A =
         ev.value(results, i)
     })
   }
 
-  private def talkToDatabase[T](f: Statement => T): DB[T] = { conn =>
+  protected def talkToDatabase[T](f: Statement => T): DB[T] = { conn =>
     // This BS is the reason we want to wrap JDBC interactions ;-)
     try {
-      val stmt = conn.createStatement
+      val stmt = createStatement(conn)
       try {
         Success(f(stmt))
       } catch {
@@ -55,5 +56,9 @@ class StringQuery(sql: String) extends Query {
         conn.rollback()
         Failure(e)
     }
+  }
+
+  protected def createStatement(conn: Connection): Statement = {
+    conn.createStatement
   }
 }
