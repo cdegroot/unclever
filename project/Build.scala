@@ -7,6 +7,7 @@ object UncleverBuild extends Build {
     .configs(IntegrationTest)
     .settings(
       scalaVersion := "2.11.7",
+      crossScalaVersions := Seq("2.10.5", "2.11.7"),
       scalacOptions ++= Seq("-unchecked", "-deprecation", "-feature", "-Xfatal-warnings"),
       libraryDependencies ++= Seq(
         "org.scalatest" %% "scalatest" % "2.2.4" % "it,test",

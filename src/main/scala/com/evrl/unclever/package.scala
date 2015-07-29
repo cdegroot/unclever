@@ -132,7 +132,7 @@ package object unclever {
    * Support sql"..." syntax to create queries. Looks nice in IntelliJ because
    * it triggers syntax highlighting inside the string.
    */
-  implicit class QueryHelper(private val sc: StringContext) extends AnyVal {
+  implicit class QueryHelper(val sc: StringContext) extends AnyVal {
     def sql(args: Any*): Query = new StringQuery(sc.parts.head)
   }
 }
