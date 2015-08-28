@@ -1,5 +1,6 @@
 [![Build Status](https://travis-ci.org/cdegroot/unclever.svg)](https://travis-ci.org/cdegroot/unclever)
  [![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/cdegroot/unclever)
+ [![JitPack](https://img.shields.io/github/release/cdegroot/unclever.svg?label=JitPack)](https://jitpack.io/#cdegroot/unclever/)
 
 
 # unclever
