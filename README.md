@@ -46,4 +46,4 @@ So, before submitting a pull request, ping me whether I actually want new code i
 
 The [Apache 2](http://www.apache.org/licenses/LICENSE-2.0) License applies. Have fun.
 
-Publishing small libraries is too much work. I recommend you use (JitPack)[https://jitpack.io/#cdegroot/unclever] to make both our lives more pleasant.
+Publishing small libraries is too much work. I recommend you use [JitPack](https://jitpack.io/#cdegroot/unclever) to make both our lives more pleasant.
