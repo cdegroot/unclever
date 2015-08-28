@@ -56,7 +56,7 @@ class StringQuery[S <: Statement](sql: String) extends Query {
 
   // Talk to the hand. Does most of the required exception catching.
   // This BS is the reason we want to wrap JDBC interactions ;-)
-  private def talkToDatabase[T](f: S => T): DB[T] = { conn =>
+  private def talkToDatabase[T](f: S => T): DB[T] = asDB { conn =>
     try {
       val stmt = createStatement(conn)
       try {

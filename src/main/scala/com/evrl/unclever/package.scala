@@ -4,7 +4,7 @@ import java.sql._
 import javax.sql.DataSource
 
 import scala.language.implicitConversions
-import scala.util.{Success, Try}
+import scala.util.{Failure, Success, Try}
 
 /**
  * The unclever package object holds the API to unclever, calling out to
@@ -19,7 +19,24 @@ package object unclever {
    * A database operation, returning a result of type A
    * @tparam A the return type of the database operation
    */
-  type DB[A] = Connection => Try[A]
+  class DB[A](f: Connection => Try[A]) extends (Connection => Try[A]) {
+    def apply(c: Connection): Try[A] = f(c)
+
+    // Implement stuff so we can be used in for comprehensions
+
+    def flatMap[B](g: A => DB[B]): DB[B] = asDB { c => f(c).map(g).flatMap(t => t(c)) }
+    def map[B](g: A => B): DB[B] = asDB { c => f(c).map(g) }
+    def withFilter(p: A => Boolean): DB[A] = asDB { c => f(c).filter(p) }
+  }
+
+  /**
+   * Lift a regular operation into a DB
+   *
+   * @param f
+   * @tparam A
+   * @return
+   */
+  def asDB[A](f: Connection => Try[A]): DB[A] = new DB(f)
 
   /**
    * Try the database operation in a connection. Feel free to ignore this
@@ -34,7 +51,7 @@ package object unclever {
 
   /**
    * Try the database operation in a fresh connection obtained
-   * from the datasource
+   * from the datasource. Again, feel free to ignore this method.
    */
   def tryWith[A](ds: DataSource)(op: => DB[A]): Try[A] = op(ds.getConnection)
 
@@ -98,7 +115,7 @@ package object unclever {
    * Convert a sequence of insert/update/DDL queries into a combine DB[Int]. This
    * will return either the total number of rows or the first exception when run.
    */
-  implicit def seqStringToDbOp(strings: Seq[String]): DB[Int] = {
+  implicit def seqStringToDbOp(strings: Seq[String]): DB[Int] = asDB {
     conn => strings.map(s => new StringQuery(s).execute).foldLeft(Success(0): Try[Int]) { (acc, elem) =>
       acc.flatMap(x => elem(conn).map(y => x + y))
     }

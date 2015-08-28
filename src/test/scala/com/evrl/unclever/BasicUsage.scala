@@ -6,7 +6,7 @@ import javax.sql.DataSource
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.{FlatSpec, ShouldMatchers}
 
-import scala.util.Try
+import scala.util.{Failure, Success, Try}
 
 /**
  * The tests in this class are all ignored by design. They serve as compilable documentation
@@ -69,4 +69,30 @@ class BasicUsage extends FlatSpec with ShouldMatchers with MockFactory {
     result.isSuccess should be(true)
     result.get should be(Some(1))
   }
+
+  it should "nicely combine multiple SQL statements" ignore {
+    //    sql"create table incident_numbers(account_id int autoincrement, incident_number int)"
+    import com.evrl.unclever._
+
+    // A simple numerator. Could be in one SQL statement, but this demonstrates how to implement
+    // the pattern "get some data, munch it, update it" in a for comprehension.
+    def inserOrUpdateBy(accountId: Int, incrementBy: Int, minimumValue: Int): Try[Int] = {
+      val conn = mock[Connection]
+      val prog: DB[Int] = for {
+        currentOpt <- sql"select incident_number from incident_numbers where account_id = ?"
+            .withParams(accountId)
+            .as[Int]
+        next = currentOpt.getOrElse(minimumValue max 1) + incrementBy
+        _ <- sql"insert into incident_numbers values(?, ?) on duplicate key update incident_number = ?"
+            .withParams(accountId, next, next)
+            .execute
+      } yield next
+
+      // Everything above just returns a function. So you could construct it once and re-use
+      // it. Invocation is simple:
+      prog(conn)
+    }
+  }
+
+
 }

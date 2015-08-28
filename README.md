@@ -1,10 +1,9 @@
 [![Build Status](https://travis-ci.org/cdegroot/unclever.svg)](https://travis-ci.org/cdegroot/unclever)
  [![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/cdegroot/unclever)
 
-Unclever is currently under design, check [the design spec](https://github.com/cdegroot/unclever/blob/master/src/test/scala/com/evrl/unclever/BasicUsage.scala) and join [the chat](https://gitter.im/cdegroot/unclever) to participate.
 
 # unclever
-The stupid way to hook Scala code up to databases.
+The stupid way to hook Scala code up to databases. A RantWare™ production by Cees de Groot
 
 Antonym of Slick ;-)
 
@@ -27,6 +26,10 @@ And the port from MySQL to Postgres? You need to test, profile, and whatnot anyw
 ## I disagree!
 Fine. This is Open Source, I'm not ramming it down your throat, so please move on and ignore me. The code will still be there next year, when you want it :P
 
+## How does it work? 
+You can find usage examples in [the design spec](https://github.com/cdegroot/unclever/blob/master/src/test/scala/com/evrl/unclever/BasicUsage.scala). I'm lazy and documentation gets out of date, which is why I keep the design spec as a bunch of (ignored) tests - at least as long as they'll compile, they'll have some relevance to the actual code.
+
+
 ## So can I use this code to run my nuclear reactor?
 Of course. Don't sue me, however, if stuff blows up. 
 
@@ -43,4 +46,4 @@ So, before submitting a pull request, ping me whether I actually want new code i
 
 The [Apache 2](http://www.apache.org/licenses/LICENSE-2.0) License applies. Have fun.
 
-I'm not sure when I get around publishing it somewhere for easy inclusion - it probably needs a bit more work. In the meantime, you can use sbt's dependsOn as explained in [this SO post](http://stackoverflow.com/questions/7550376/how-can-sbt-pull-dependency-artifacts-from-git).
+Publishing small libraries is too much work. I recommend you use (JitPack)[https://jitpack.io/#cdegroot/unclever] to make both our lives more pleasant.
