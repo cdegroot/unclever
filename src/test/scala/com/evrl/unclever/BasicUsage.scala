@@ -8,6 +8,9 @@ import org.scalatest.{FlatSpec, ShouldMatchers}
 
 import scala.util.{Failure, Success, Try}
 
+import com.evrl.unclever._
+
+
 /**
  * The tests in this class are all ignored by design. They serve as compilable documentation
  * on how to use the library. Compiler-driven design: if you want to extend the library,
@@ -72,7 +75,6 @@ class BasicUsage extends FlatSpec with ShouldMatchers with MockFactory {
 
   it should "nicely combine multiple SQL statements" ignore {
     //    sql"create table incident_numbers(account_id int autoincrement, incident_number int)"
-    import com.evrl.unclever._
 
     // A simple numerator. Could be in one SQL statement, but this demonstrates how to implement
     // the pattern "get some data, munch it, update it" in a for comprehension.

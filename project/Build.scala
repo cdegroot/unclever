@@ -6,7 +6,7 @@ object UncleverBuild extends Build {
   lazy val root = Project(id = "unclever", base = file("."))
     .configs(IntegrationTest)
     .settings(
-      scalaVersion := "2.10.5",
+      scalaVersion := "2.11.7",
       crossScalaVersions := Seq("2.10.5", "2.11.7"),
       scalacOptions ++= Seq("-unchecked", "-deprecation", "-feature", "-Xfatal-warnings"),
       libraryDependencies ++= Seq(
